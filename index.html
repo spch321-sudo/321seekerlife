@@ -100,6 +100,7 @@ body.crOn .top{top:calc(40px + env(safe-area-inset-top));padding-top:10px}
 .gxroot .xzt .sent{cursor:pointer}
 .gxroot .xzt .sent[data-hl="1"]{border-radius:3px}
 #meetHome .gxintro{margin-top:12px}#meetHome .nextmtg h4{font-family:var(--serif,serif)}
+.cparbar{display:flex;justify-content:flex-end;margin:2px 0 10px}.cparbtn{border:1px solid rgba(128,128,128,.4);background:transparent;color:inherit;border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;line-height:1.3}.cparbtn.on{background:rgba(128,128,128,.14);border-color:currentColor}
 </style>
 <style id="parcss">.par{margin:6px 0 14px;padding:8px 12px;border-left:3px solid var(--gold);background:var(--soft);border-radius:6px;font-size:.9em;color:var(--mute);line-height:1.75}.parS{display:block;margin:3px 0 12px;padding:1px 0 1px 10px;border-left:2px solid var(--gold);font-size:.86em;color:var(--mute);line-height:1.7;font-weight:400;font-style:normal}.vs .parS{margin:2px 0 8px}.par.pt{margin:2px 0 8px;padding:2px 10px;font-size:.85em}.par sup{color:var(--gold);font-weight:700;margin-right:2px}</style>
 </head>
@@ -110,7 +111,7 @@ body.crOn .top{top:calc(40px + env(safe-area-inset-top));padding-top:10px}
 <div id="sheet" class="sheet" onclick="if(event.target===this)closeSheet()"><div class="in" id="sbody"></div></div>
 <div id="toast" class="toast"></div>
 <script>
-var APPVER = '1.0.202611071030-ws3-fs1103-xz1103-au1103-xzm1103-rf1105h-par1';
+var APPVER = '1.0.202611071030-ws3-fs1103-xz1103-au1103-xzm1103-rf1105h-par1-cs1109';
 var KEY = 'sk321';
 var SVC = { xz: 'https://xiaozhi-proxy.spch321.workers.dev', tts: 'https://azure-tts.spch321.workers.dev', model: 'claude-sonnet-4-6' };
 var STAGES = [[1, 1, 4, 's1'], [2, 5, 8, 's2'], [3, 9, 12, 's3'], [4, 13, 16, 's4'], [5, 17, 20, 's5'], [6, 21, 24, 's6']];
@@ -633,7 +634,7 @@ loading(wkLabel(w), true);
 getWeek(w, function (wk, err) {
 if (!wk) return loadErr(wkLabel(w), err, 'render()');
 getParWeek(w, function (PX) {
-var s = stageOf(w), h = topbar(wkLabel(w), true, parBtn() + crBtn());
+var s = stageOf(w), h = topbar(wkLabel(w), true, parBtn() + crBtn()) + cparBar();
 window.CARDSRC = { key: { t: wk.keyText, ref: wk.kl, n: '' } };
 h += '<div class="sec card stage" style="--sc:' + SCOL[s] + '"><span class="tag">' + esc(SIC[s] + ' ' + stageName(s)) + '</span><div class="h2" style="margin-top:8px">' + esc(wk.title) + '</div>' + PBt(PX && PX.title) + paraBlk('w' + pad(w), 'th', wkLabel(w) + ' ' + wk.title, wk.theme, 'p', 'kv', PX && PX.theme) + '<hr class="s"><p class="eyebrow">' + esc(T('memory')) + ' · ' + esc(wk.kl) + '</p>' + blk('div', 'scr kv', 'w' + pad(w), 'key', wk.kl, sentHtmlP(wk.keyText, PX && PX.keyText, 0)) + '<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="play" style="margin-left:0" data-act="mkcard" data-k="key">' + svgI('img') + ' ' + esc(T('makeCardV')) + '</button><button class="play" style="margin-left:6px" data-act="ttssec">🔊 ' + esc(T('listen')) + '</button></div></div>';
 h += '<div class="card">';
@@ -667,7 +668,7 @@ getParWeek(w, function (pw) {
 var PL = pw && pw.lessons ? pw.lessons[d - 1] : null;
 var l = wk.lessons[d - 1], id = lid(w, d), s = stageOf(w), nt = S.notes[id] || {};
 var right = parBtn() + crBtn() + '<button class="ib ttsb" data-act="ttspage" aria-label="read">' + svgI('sound') + '</button><button class="ib" onclick="open_({t:\'lesson\',w:' + w + ',d:' + d + (q ? '' : ',q:1') + '});R.stack.pop()">' + esc(q ? T('full') : T('quick3')) + '</button>';
-var h = topbar(wkLabel(w) + ' · ' + T('dN', d), true, right);
+var h = topbar(wkLabel(w) + ' · ' + T('dN', d), true, right) + cparBar();
 var lref = T('lessonRef', wkLabel(w) + ' ' + T('dN', d), l.title);
 h += '<div class="stage" style="--sc:' + SCOL[s] + ';margin-top:4px"><span class="tag">' + esc(SIC[s] + ' ' + stageName(s)) + '</span><p class="eyebrow" style="margin-top:8px">' + esc(wk.title) + '</p><div class="h2" style="font-size:1.5em">' + esc(l.title) + '</div>' + PBt(PL && PL.title) + '<p class="xs muted" style="margin:2px 0 0">' + esc(T('hlTip')) + '</p></div>';
 var vtxt = ''; for (var j = 0; j < l.text.length; j++) vtxt += l.text[j][2] + (L() === 'en' ? ' ' : '');
@@ -729,39 +730,39 @@ try { navigator.clipboard.writeText(t).then(function () { toast(T('copied')); },
 function fbCopy(t) { var a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); toast(T('copied')); } catch (e) { } document.body.removeChild(a); }
 /* ── 決志 ── */
 function vDecision() {
-loadTools(function (t) {
+loadTools(function (t) { toolsAlt(function (ta) {
 if (!t) return loadErr(T('t_dec'), '', 'render()');
-var D = t.decision, h = topbar(T('t_dec'), true, crBtn() + '<button class="ib ttsb" data-act="ttspage" aria-label="read">' + svgI('sound') + '</button>');
+var D = t.decision, D2 = ta && ta.decision || {}, h = topbar(T('t_dec'), true, crBtn() + '<button class="ib ttsb" data-act="ttspage" aria-label="read">' + svgI('sound') + '</button>') + cparBar();
 if (S.ms.m6) h += '<div class="card c" style="border-color:var(--ok)"><div style="font-size:2em">🎂</div><p class="h3">' + esc(T('decDoneT', fmtDay(S.ms.m6))) + '</p><p class="sm muted">' + esc(bday()) + '</p></div>';
-h += '<div class="sec card" data-say="' + esc(T('t_dec')) + '">' + paraBlk('dec', 'in', T('t_dec'), D.intro, 'p') + '</div>';
+h += '<div class="sec card" data-say="' + esc(T('t_dec')) + '">' + paraBlk('dec', 'in', T('t_dec'), D.intro, 'p', null, D2.intro) + '</div>';
 h += '<div class="card"><p class="eyebrow">' + esc(T('decSteps')) + '</p>';
-for (var i = 0; i < D.steps.length; i++) { var s = D.steps[i]; h += '<div class="dstep"><div class="dn">' + (i + 1) + '</div><div class="grow"><b>' + esc(s.k) + '</b>' + paraBlk('dec', 's' + i, s.rl, s.t, 'div') + '<div class="xs muted" style="margin-top:4px">' + esc(s.rl) + ' ' + qt(s.v) + '</div></div></div>'; }
-h += '</div><div class="sec card" data-say="' + esc(T('say_4')) + '"><div class="lbl"><span class="k">🙏</span><span>' + esc(T('decPrayer')) + '</span><button class="play" data-act="ttssec">🔊 ' + esc(T('listen')) + '</button></div>' + paraBlk('dec', 'pr', T('decPrayer'), D.prayer, 'div', 'pray') + '</div>';
+for (var i = 0; i < D.steps.length; i++) { var s = D.steps[i], s2 = D2.steps && D2.steps[i] || {}; h += '<div class="dstep"><div class="dn">' + (i + 1) + '</div><div class="grow"><b>' + ilv(s.k, s2.k) + '</b>' + paraBlk('dec', 's' + i, s.rl, s.t, 'div', null, s2.t) + '<div class="xs muted" style="margin-top:4px">' + esc(s.rl) + ' ' + qt(s.v) + '</div></div></div>'; }
+h += '</div><div class="sec card" data-say="' + esc(T('say_4')) + '"><div class="lbl"><span class="k">🙏</span><span>' + esc(T('decPrayer')) + '</span><button class="play" data-act="ttssec">🔊 ' + esc(T('listen')) + '</button></div>' + paraBlk('dec', 'pr', T('decPrayer'), D.prayer, 'div', 'pray', D2.prayer) + '</div>';
 if (!S.ms.m6) h += '<button class="btn gold full" style="margin:6px 0 4px" onclick="decDone()">✝ ' + esc(T('decDoneB')) + '</button><p class="xs muted c">' + esc(T('decNotYet')) + '</p><button class="btn full" onclick="openXz(T(\'decAskXz\'))">💬 ' + esc(T('decQ')) + '</button>';
 h += '<div class="card"><p class="eyebrow">' + esc(T('decAfter')) + '</p>';
-for (var k = 0; k < D.after.length; k++) h += '<p class="sm" style="margin:6px 0">' + (k + 1) + '. ' + esc(D.after[k]) + '</p>';
+for (var k = 0; k < D.after.length; k++) h += '<p class="sm" style="margin:6px 0">' + (k + 1) + '. ' + ilv(D.after[k], D2.after && D2.after[k]) + '</p>';
 h += '</div>';
 setApp(h);
-});
+}); });
 }
 function decDone() { msSet('m6', 1); if (!S.ms.m4) S.ms.m4 = now(); save(); render(); }
 /* ── 受洗預備 ── */
 function vBaptism() {
-loadTools(function (t) {
+loadTools(function (t) { toolsAlt(function (ta) {
 if (!t) return loadErr(T('t_bapt'), '', 'render()');
-var h = topbar(T('t_bapt'), true), n = 0; for (var i = 0; i < t.bcheck.length; i++) if (S.bc[i]) n++;
+var h = topbar(T('t_bapt'), true) + cparBar(), n = 0; for (var i = 0; i < t.bcheck.length; i++) if (S.bc[i]) n++;
 if (S.ms.m9) h += '<div class="card c" style="border-color:var(--ok)"><div style="font-size:2em">💧</div><p class="h3">' + esc(T('baptizedOn', fmtDay(S.ms.m9))) + '</p></div>';
 h += '<div class="card"><div class="row sp"><p class="eyebrow" style="margin:0">' + esc(T('bcTitle')) + '</p><span class="xs muted">' + n + '/' + t.bcheck.length + '</span></div><div class="bar" style="margin:8px 0"><i style="width:' + Math.round(n * 100 / t.bcheck.length) + '%"></i></div>';
-for (var j = 0; j < t.bcheck.length; j++) h += '<label class="chk bc"><input type="checkbox" ' + (S.bc[j] ? 'checked' : '') + ' onchange="S.bc[' + j + ']=this.checked?1:0;save();render()">' + esc(t.bcheck[j]) + '</label>';
+for (var j = 0; j < t.bcheck.length; j++) h += '<label class="chk bc"><input type="checkbox" ' + (S.bc[j] ? 'checked' : '') + ' onchange="S.bc[' + j + ']=this.checked?1:0;save();render()">' + ilv(t.bcheck[j], ta && ta.bcheck && ta.bcheck[j]) + '</label>';
 h += '<p class="xs muted">' + esc(n === t.bcheck.length ? T('bcReady') : T('bcNote')) + '</p></div>';
 h += '<div class="card"><p class="eyebrow">📅 ' + esc(T('bPlan')) + '</p><div class="q"><label class="sm">' + esc(T('bClass')) + '</label><input type="date" value="' + esc(S.bclass) + '" onchange="S.bclass=this.value;if(this.value&&!S.ms.m7)msSet(\'m7\',1);save()"></div><div class="q"><label class="sm">' + esc(T('bDate')) + '</label><input type="date" value="' + esc(S.bdate) + '" onchange="S.bdate=this.value;save()"></div>' + (S.bdate ? '<p class="sm">' + esc(bCount()) + '</p>' : '') + '</div>';
 h += '<div class="card"><p class="eyebrow">💬 ' + esc(T('bqaT')) + '</p><p class="xs muted">' + esc(T('bqaNote')) + '</p>';
-for (var k = 0; k < t.bqa.length; k++) h += '<details class="bq"><summary>' + (k + 1) + '. ' + esc(t.bqa[k][0]) + '</summary><p class="sm">' + esc(t.bqa[k][1]) + '</p></details>';
+for (var k = 0; k < t.bqa.length; k++) h += '<details class="bq"><summary>' + (k + 1) + '. ' + ilv(t.bqa[k][0], ta && ta.bqa && ta.bqa[k] && ta.bqa[k][0]) + '</summary><p class="sm">' + ilv(t.bqa[k][1], ta && ta.bqa && ta.bqa[k] && ta.bqa[k][1]) + '</p></details>';
 h += '<button class="btn sm" onclick="openXz(T(\'bqaXz\'))">💬 ' + esc(T('bqaPractice')) + '</button></div>';
 h += '<div class="grid2">' + tile('✍', T('t_tm'), T('t_tm_d'), "open_({t:'testimony'})") + tile('📖', T('bWeeks'), T('bWeeks_d'), "R.sub.jstage=5;go('journey')") + '</div>';
 if (!S.ms.m9) h += '<button class="btn gold full" style="margin:10px 0" onclick="if(confirm(T(\'bDoneAsk\'))){msSet(\'m9\',1);render()}">💧 ' + esc(T('bDoneB')) + '</button>';
 setApp(h);
-});
+}); });
 }
 function bCount() { var d = Math.ceil((new Date(S.bdate + 'T00:00:00').getTime() - new Date(today() + 'T00:00:00').getTime()) / 864e5); return d > 0 ? T('bLeft', d) : (d === 0 ? T('bToday') : T('bPast')); }
 /* ── 我的見證 ── */
@@ -809,25 +810,26 @@ el.innerHTML = n ? '<div class="card" style="padding:6px 14px">' + h + '</div>' 
 });
 }
 function vQA1(id) {
-loadTools(function (t) {
+loadTools(function (t) { toolsAlt(function (ta) {
 var x = null, cat = null; if (t) for (var i = 0; i < t.qa.length; i++) if (t.qa[i].id === id) x = t.qa[i];
 if (!x) return back();
+var x2 = null; if (ta && ta.qa) for (var i2 = 0; i2 < ta.qa.length; i2++) if (ta.qa[i2].id === id) x2 = ta.qa[i2];
 for (var c = 0; c < t.cats.length; c++) if (t.cats[c].id === x.c) cat = t.cats[c];
 S.qaseen[id] = now(); save();
-var h = topbar(cat.n, true, crBtn() + '<button class="ib ttsb" data-act="ttspage" aria-label="read">' + svgI('sound') + '</button><button class="ib" onclick="S.qafav[\'' + id + '\']=S.qafav[\'' + id + '\']?0:1;save();render()" aria-label="fav">' + (S.qafav[id] ? '★' : '☆') + '</button>');
-h += '<div class="h2" style="margin:6px 2px 10px">' + esc(x.q) + '</div>';
-var ps = x.a.split(/\n\s*\n/), b = '';
-for (var k = 0; k < ps.length; k++) b += paraBlk('q_' + id, 'a' + k, x.q, ps[k]);
+var h = topbar(cat.n, true, crBtn() + '<button class="ib ttsb" data-act="ttspage" aria-label="read">' + svgI('sound') + '</button><button class="ib" onclick="S.qafav[\'' + id + '\']=S.qafav[\'' + id + '\']?0:1;save();render()" aria-label="fav">' + (S.qafav[id] ? '★' : '☆') + '</button>') + cparBar();
+h += '<div class="h2" style="margin:6px 2px 10px">' + esc(x.q) + '</div>' + PBt(x2 && x2.q);
+var ps = x.a.split(/\n\s*\n/), b = '', pp = cparParas(ps.length, x2 && x2.a);
+for (var k = 0; k < ps.length; k++) b += paraBlk('q_' + id, 'a' + k, x.q, ps[k], null, null, pp[k]);
 h += '<div class="sec card" data-say=""><div class="prose">' + b + '</div></div>';
-if (x.refs.length) { h += '<div class="card"><p class="eyebrow">📖 ' + esc(T('qaRefs')) + '</p>'; window.CARDSRC = {}; for (var r = 0; r < x.refs.length; r++) { CARDSRC['r' + r] = { t: x.refs[r].t, ref: x.refs[r].rl, n: '' }; h += '<div class="qref"><b class="sm">' + esc(x.refs[r].rl) + '</b>' + blk('div', 'scr', 'q_' + id, 'r' + r, x.refs[r].rl, sentHtml(x.refs[r].t, 0)) + '<button class="play" style="margin-left:0" data-act="mkcard" data-k="r' + r + '">' + svgI('img') + ' ' + esc(T('makeCardV')) + '</button></div>'; } h += '</div>'; }
-h += '<div class="card do"><p class="eyebrow">👣 ' + esc(T('qaStep')) + '</p>' + paraBlk('q_' + id, 'st', x.q, x.step, 'div') + xzInline(x.step) + '</div>';
-if (isGuide()) h += '<div class="card gd"><p class="eyebrow">🌱 ' + esc(T('qaTip')) + '</p><p class="sm" style="margin:0">' + esc(x.tip) + '</p></div>';
+if (x.refs.length) { h += '<div class="card"><p class="eyebrow">📖 ' + esc(T('qaRefs')) + '</p>'; window.CARDSRC = {}; for (var r = 0; r < x.refs.length; r++) { CARDSRC['r' + r] = { t: x.refs[r].t, ref: x.refs[r].rl, n: '' }; h += '<div class="qref"><b class="sm">' + esc(x.refs[r].rl) + '</b>' + blk('div', 'scr', 'q_' + id, 'r' + r, x.refs[r].rl, sentHtmlP(x.refs[r].t, x2 && x2.refs && x2.refs[r] && x2.refs[r].t, 0)) + '<button class="play" style="margin-left:0" data-act="mkcard" data-k="r' + r + '">' + svgI('img') + ' ' + esc(T('makeCardV')) + '</button></div>'; } h += '</div>'; }
+h += '<div class="card do"><p class="eyebrow">👣 ' + esc(T('qaStep')) + '</p>' + paraBlk('q_' + id, 'st', x.q, x.step, 'div', null, x2 && x2.step) + xzInline(x.step) + '</div>';
+if (isGuide()) h += '<div class="card gd"><p class="eyebrow">🌱 ' + esc(T('qaTip')) + '</p><p class="sm" style="margin:0">' + ilv(x.tip, x2 && x2.tip) + '</p></div>';
 h += '<div class="row wrap" style="gap:8px;margin-bottom:20px"><button class="btn pri grow" onclick="qaAsk(\'' + id + '\')">💬 ' + esc(T('qaAskXz')) + '</button><button class="btn grow" onclick="qaShare(\'' + id + '\')">' + esc(T('share')) + '</button></div>';
 var rel = []; for (var j = 0; j < t.qa.length; j++) if (t.qa[j].c === x.c && t.qa[j].id !== id) rel.push(t.qa[j]);
 if (rel.length) { h += '<div class="card" style="padding:6px 14px"><p class="eyebrow" style="margin-top:8px">' + esc(T('qaRel')) + '</p>'; for (var m = 0; m < rel.length; m++) h += '<div class="qitem"><span class="grow" onclick="R.page={t:\'qa1\',id:\'' + rel[m].id + '\'};render();scrollTo(0,0)">' + esc(rel[m].q) + '</span><button class="qxz" onclick="event.stopPropagation();qaAskQ(\'' + rel[m].id + '\')" aria-label="ask">💬 ' + esc(T('qaXzBtn')) + '</button></div>'; h += '</div>'; }
 window.LCUR = null;
 setApp(h);
-});
+}); });
 }
 function qaFind(id) { var t = TOOLS[L()]; if (t) for (var i = 0; i < t.qa.length; i++) if (t.qa[i].id === id) return t.qa[i]; return null; }
 function qaAskQ(id) { var x = qaFind(id); if (x) openXz(x.q, T('qaXzCtx', x.q, x.a.slice(0, 900))); }
@@ -917,20 +919,20 @@ h += '<div class="card"><p class="eyebrow">321</p><p class="sm" style="margin:0;
 return h;
 }
 function vGuide() {
-loadTools(function (t) {
+loadTools(function (t) { toolsAlt(function (ta) {
 if (!t) return loadErr(T('guideT'), '', 'render()');
-var C = t.companion, h = topbar(T('guideT'), true, crBtn() + '<button class="ib ttsb" data-act="ttspage" aria-label="read">' + svgI('sound') + '</button>');
+var C = t.companion, C2 = ta && ta.companion || {}, h = topbar(T('guideT'), true, crBtn() + '<button class="ib ttsb" data-act="ttspage" aria-label="read">' + svgI('sound') + '</button>') + cparBar();
 h += '<div class="sec card" data-say="' + esc(T('gPrin')) + '"><p class="eyebrow">' + esc(T('gPrin')) + '</p>';
-for (var i = 0; i < C.principles.length; i++) h += '<div class="dstep"><div class="dn">' + (i + 1) + '</div><div class="grow"><b>' + esc(C.principles[i][0]) + '</b>' + paraBlk('guide', 'p' + i, T('gPrin'), C.principles[i][1], 'div', 'sm') + '</div></div>';
+for (var i = 0; i < C.principles.length; i++) h += '<div class="dstep"><div class="dn">' + (i + 1) + '</div><div class="grow"><b>' + ilv(C.principles[i][0], C2.principles && C2.principles[i] && C2.principles[i][0]) + '</b>' + paraBlk('guide', 'p' + i, T('gPrin'), C.principles[i][1], 'div', 'sm', C2.principles && C2.principles[i] && C2.principles[i][1]) + '</div></div>';
 h += '</div><div class="card"><p class="eyebrow">⏱ ' + esc(T('gFlow')) + '</p>';
-for (var j = 0; j < C.flow.length; j++) h += '<div class="flow"><span class="ft">' + esc(C.flow[j][0]) + '</span><div class="grow"><b>' + esc(C.flow[j][1]) + '</b><div class="sm muted">' + esc(C.flow[j][2]) + '</div></div></div>';
+for (var j = 0; j < C.flow.length; j++) h += '<div class="flow"><span class="ft">' + esc(C.flow[j][0]) + '</span><div class="grow"><b>' + ilv(C.flow[j][1], C2.flow && C2.flow[j] && C2.flow[j][1]) + '</b><div class="sm muted">' + ilv(C.flow[j][2], C2.flow && C2.flow[j] && C2.flow[j][2]) + '</div></div></div>';
 h += '</div><div class="sec card" data-say="' + esc(T('gBridge')) + '"><p class="eyebrow">🌉 ' + esc(T('gBridge')) + '</p><p class="xs muted">' + esc(T('gBridgeD')) + '</p>' + bridgeSvg(C.bridge);
-for (var k = 0; k < C.bridge.length; k++) { var b = C.bridge[k]; h += '<div class="dstep"><div class="dn">' + (k + 1) + '</div><div class="grow"><b>' + esc(b.t) + '</b>' + paraBlk('guide', 'b' + k, b.rl, b.d, 'div', 'sm') + '<div class="xs muted">' + esc(b.rl) + ' ' + qt(b.v) + '</div></div></div>'; }
+for (var k = 0; k < C.bridge.length; k++) { var b = C.bridge[k], b2 = C2.bridge && C2.bridge[k] || {}; h += '<div class="dstep"><div class="dn">' + (k + 1) + '</div><div class="grow"><b>' + ilv(b.t, b2.t) + '</b>' + paraBlk('guide', 'b' + k, b.rl, b.d, 'div', 'sm', b2.d) + '<div class="xs muted">' + esc(b.rl) + ' ' + qt(b.v) + '</div></div></div>'; }
 h += '<button class="btn sm" onclick="shareText(bridgeText())">' + esc(T('share')) + '</button></div><div class="card" style="border-color:var(--bad)"><p class="eyebrow" style="color:var(--bad)">⚠ ' + esc(T('gDont')) + '</p>';
-for (var m = 0; m < C.dont.length; m++) h += '<p class="sm" style="margin:6px 0">• ' + esc(C.dont[m]) + '</p>';
+for (var m = 0; m < C.dont.length; m++) h += '<p class="sm" style="margin:6px 0">• ' + ilv(C.dont[m], C2.dont && C2.dont[m]) + '</p>';
 h += '</div><div class="card"><p class="eyebrow">321 · 920 · 235</p><p class="sm" style="margin:0;line-height:1.9">' + esc(T('g321')) + '</p></div>';
 setApp(h);
-});
+}); });
 }
 function bridgeText() { var t = TOOLS[L()], o = T('gBridge') + '\n\n'; if (!t) return ''; var B = t.companion.bridge; for (var i = 0; i < B.length; i++) o += (i + 1) + '. ' + B[i].t + '：' + B[i].d + '\n   ' + B[i].rl + ' ' + B[i].v + '\n'; return o + '\n' + appUrl(); }
 function bridgeSvg(B) {
@@ -1317,7 +1319,11 @@ var IC2 = { chat: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12
 function svgI(n) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-4px">' + IC2[n] + '</svg>'; }
 (function () { var d = defState(); if (!S.hl) S.hl = {}; if (!S.chat) S.chat = []; if (!S.fav) S.fav = []; if (!S.card) S.card = { tpl: 'navy', size: 't', border: 'classic', fs: 1, to: '', top: '', sign: '' }; })();
 var PAR_L = [['zh', '繁', 'zh-Hant'], ['zs', '简', 'zh-Hans'], ['en', 'EN', 'en']];
-function parOn() { return S.par && S.par !== L() ? S.par : ''; }
+/* cs1109 中英並讀：S.par 與全系列共用的 localStorage cpar321（'1'／''）同步——開 App 時依 cpar321 開關，之後只有使用者在本 App 改動並讀時才寫回 cpar321（不因只是看過而覆蓋別的 App 的設定） */
+var CPAR_A=0,CPAR_W=null;
+function cparDef(){return L()==='en'?'zh':'en';}
+function parOn(){var g=S&&S.par&&S.par!==L()?S.par:'';try{var c=localStorage.getItem('cpar321');if(!CPAR_A&&S){CPAR_A=1;if(c==='1'&&!g){S.par=cparDef();save();g=S.par;}else if(c===''&&g){S.par='';save();g='';}CPAR_W=g?'1':'';}else if(CPAR_A){var w=g?'1':'';if(w!==CPAR_W){CPAR_W=w;localStorage.setItem('cpar321',w);}}}catch(e){}return g;}
+function cparBar(){var g=parOn(),l=L(),t=l==='en'?['Chinese parallel','On','Off']:l==='zs'?['中英并读','开','关']:l==='ko'?['영어 병행 읽기','켬','끔']:['中英並讀','開','關'];return '<div class="cparbar"><button class="cparbtn'+(g?' on':'')+'" onclick="cparTog()" aria-pressed="'+(g?'true':'false')+'">🌐 '+t[0]+(l==='en'||l==='ko'?': ':'：')+(g?t[1]:t[2])+'</button></div>';}
 window.XZPAR_HOST = { on: function () { return parOn(); } };
 function parLang() { var g = parOn(), r = 'en'; eachA(PAR_L, function (x) { if (x[0] === g) r = x[2]; }); return r; }
 function parSplit(t) { t = String(t == null ? '' : t); var g = parOn(), out = [], m, re;
@@ -1339,6 +1345,10 @@ function PBt(t) { if (!t || !parOn()) return ''; return '<div class="par pt" lan
 function parGroups(arr, ptxt) { if (!ptxt || !parOn()) return null; var pp = String(ptxt).split(/\n\s*\n/), r = arr.length === pp.length ? pp : alignS(arr, pp); return r; }
 function getParWeek(w, cb) { var g = parOn(); if (!g) return cb(null); loadStageL(g, stageOf(w), function (m) { cb(m ? m[w] : null); }); }
 function parBtn() { var g = parOn(), lb = '⇄'; eachA(PAR_L, function (x) { if (x[0] === g) lb = x[1]; }); return '<button class="ib' + (g ? ' on' : '') + '" data-act="partog" aria-label="parallel" style="font-size:15px;font-weight:700">' + lb + '</button>'; }
+/* cs1109：另一語言的工具資料（行動卡、問答…）給並讀用 */
+function toolsAlt(cb) { var g = parOn(); if (!g) return cb(null); if (TOOLS[g]) return cb(TOOLS[g]); getJSON(['t-' + g + '.json', 'content/t-' + g + '.json'], function (j) { TOOLS[g] = j; cb(j); }, function () { cb(null); }); }
+function cparParas(n, alt) { var out = []; for (var i = 0; i < n; i++) out.push(null); if (!alt) return out; var a = String(alt).split(/\n\s*\n/); if (a.length === n) return a; for (var j = 0; j < a.length; j++) { var k = Math.min(n - 1, Math.floor(j * n / a.length)); out[k] = out[k] ? out[k] + ' ' + a[j] : a[j]; } return out; }
+function cparTog() { S.par = parOn() ? '' : cparDef(); save(); var py = window.pageYOffset || document.body.scrollTop || 0; render(); setTimeout(function () { window.scrollTo(0, py); }, 300); }
 
 var SENT_END_ZH = '。！？', CLOSERS = '」』）〕”’';
 function splitS(text) {
